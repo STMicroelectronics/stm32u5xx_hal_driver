@@ -276,6 +276,7 @@
   * @{
   */
 #define PKA_RAM_SIZE 1334U
+#define PKA_RAM_ERASE_TIMEOUT 1000U
 
 /* Private macro -------------------------------------------------------------*/
 #define __PKA_RAM_PARAM_END(TAB,INDEX)                do{                                   \
@@ -399,8 +400,22 @@ HAL_StatusTypeDef HAL_PKA_Init(PKA_HandleTypeDef *hpka)
     /* Set the state to busy */
     hpka->State = HAL_PKA_STATE_BUSY;
 
-    /* Reset the control register and enable the PKA */
-    hpka->Instance->CR = PKA_CR_EN;
+    /* Get current tick */
+    tickstart = HAL_GetTick();
+
+    /* Reset the control register and enable the PKA (wait the end of PKA RAM erase) */
+    while ((hpka->Instance->CR & PKA_CR_EN) != PKA_CR_EN)
+    {
+      hpka->Instance->CR = PKA_CR_EN;
+
+      /* Check the Timeout */
+      if ((HAL_GetTick() - tickstart) > PKA_RAM_ERASE_TIMEOUT)
+      {
+        /* Set timeout status */
+        err = HAL_TIMEOUT;
+        break;
+      }
+    }
 
     /* Get current tick */
     tickstart = HAL_GetTick();
@@ -502,12 +517,50 @@ __weak void HAL_PKA_MspInit(PKA_HandleTypeDef *hpka)
   */
 __weak void HAL_PKA_MspDeInit(PKA_HandleTypeDef *hpka)
 {
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hpka);
-
-  /* NOTE : This function should not be modified, when the callback is needed,
+  /* NOTE : This function should not be modified,
             the HAL_PKA_MspDeInit can be implemented in the user file
+            user should take into consideration PKA RAM erase when resetting PKA
    */
+  uint32_t tickstart = HAL_GetTick();
+
+  /* Enable PKA reset state */
+  __HAL_RCC_PKA_FORCE_RESET();
+
+  /* Release PKA from reset state */
+  __HAL_RCC_PKA_RELEASE_RESET();
+
+  /* Wait the INITOK flag Setting */
+  while (hpka->Instance->CR != PKA_CR_EN)
+  {
+    hpka->Instance->CR = PKA_CR_EN;
+
+    /* Check for the Timeout */
+    if ((HAL_GetTick() - tickstart) > PKA_RAM_ERASE_TIMEOUT)
+    {
+      /* update the state */
+      hpka->State = HAL_PKA_STATE_ERROR;
+    }
+  }
+
+  /* Get current tick */
+  tickstart = HAL_GetTick();
+
+  /* Wait the INITOK flag Setting */
+  if (PKA_WaitOnFlagUntilTimeout(hpka, PKA_SR_INITOK, RESET, tickstart, PKA_RAM_ERASE_TIMEOUT) != HAL_OK)
+  {
+    /* update the state */
+    hpka->State = HAL_PKA_STATE_ERROR;
+  }
+
+  /* Reset any pending flag */
+  SET_BIT(hpka->Instance->CLRFR, PKA_CLRFR_PROCENDFC | PKA_CLRFR_RAMERRFC | PKA_CLRFR_ADDRERRFC | PKA_CLRFR_OPERRFC);
+
+  /* PKA Periph clock disable */
+  hpka->Instance->CR = 0;
+  __HAL_RCC_PKA_CLK_DISABLE();
+
+  /* PKA Periph IRQ disable */
+  HAL_NVIC_DisableIRQ(PKA_IRQn);
 }
 
 #if (USE_HAL_PKA_REGISTER_CALLBACKS == 1)
