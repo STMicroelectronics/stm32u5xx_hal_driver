@@ -267,10 +267,10 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_VOLTAGE VREFBUF VOLTAGE
   * @{
   */
-#define LL_VREFBUF_VOLTAGE_SCALE0          ((uint32_t)0x00000000)  /*!< Voltage reference scale 0 (VREF_OUT1) */
-#define LL_VREFBUF_VOLTAGE_SCALE1          VREFBUF_CSR_VRS_0       /*!< Voltage reference scale 1 (VREF_OUT2) */
-#define LL_VREFBUF_VOLTAGE_SCALE2          VREFBUF_CSR_VRS_1       /*!< Voltage reference scale 0 (VREF_OUT3) */
-#define LL_VREFBUF_VOLTAGE_SCALE3          VREFBUF_CSR_VRS_2       /*!< Voltage reference scale 1 (VREF_OUT4) */
+#define LL_VREFBUF_VOLTAGE_SCALE0          ((uint32_t)0x00000000)                   /*!< Voltage reference scale 0 (VREF_OUT1) */
+#define LL_VREFBUF_VOLTAGE_SCALE1          VREFBUF_CSR_VRS_0                        /*!< Voltage reference scale 1 (VREF_OUT2) */
+#define LL_VREFBUF_VOLTAGE_SCALE2          VREFBUF_CSR_VRS_1                        /*!< Voltage reference scale 2 (VREF_OUT3) */
+#define LL_VREFBUF_VOLTAGE_SCALE3          (VREFBUF_CSR_VRS_0 | VREFBUF_CSR_VRS_1)  /*!< Voltage reference scale 3 (VREF_OUT4) */
 /**
   * @}
   */
