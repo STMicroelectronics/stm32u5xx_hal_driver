@@ -8583,6 +8583,20 @@ __STATIC_INLINE uint32_t LL_ADC_IsActiveFlag_AWD3(const ADC_TypeDef *ADCx)
 }
 
 /**
+  * @brief  Get flag ADC internal voltage regulator (LDO) ready.
+  * @note   On this STM32 series, this flag indicates LDO state in different way depending on ADC instances:
+  *         - ADC4: latched as other flags, clear flag function available
+  *         - ADC1, ADC2 (if available): current state (not latched as other flags, no clear flag function)
+  * @rmtoll ISR      LDORDY         LL_ADC_IsActiveFlag_LDORDY
+  * @param  ADCx ADC instance
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_ADC_IsActiveFlag_LDORDY(const ADC_TypeDef *ADCx)
+{
+  return ((READ_BIT(ADCx->ISR, LL_ADC_FLAG_LDORDY) == (LL_ADC_FLAG_LDORDY)) ? 1UL : 0UL);
+}
+
+/**
   * @brief  Clear flag ADC ready.
   * @note   On this STM32 series, flag LL_ADC_FLAG_ADRDY is raised when the ADC
   *         is enabled and when conversion clock is active.
@@ -8695,6 +8709,19 @@ __STATIC_INLINE void LL_ADC_ClearFlag_AWD3(ADC_TypeDef *ADCx)
   WRITE_REG(ADCx->ISR, LL_ADC_FLAG_AWD3);
 }
 
+/**
+  * @brief  Clear flag ADC internal voltage regulator (LDO) ready.
+  * @note   On this STM32 series, this flag indicates LDO state in different way depending on ADC instances:
+  *         - ADC4: latched as other flags, clear flag function available
+  *         - ADC1, ADC2 (if available): current state (not latched as other flags, no clear flag function)
+  * @rmtoll ISR      LDORDY         LL_ADC_ClearFlag_LDORDY
+  * @param  ADCx ADC instance
+  * @retval None
+  */
+__STATIC_INLINE void LL_ADC_ClearFlag_LDORDY(ADC_TypeDef *ADCx)
+{
+  WRITE_REG(ADCx->ISR, LL_ADC_FLAG_LDORDY);
+}
 
 /**
   * @}
