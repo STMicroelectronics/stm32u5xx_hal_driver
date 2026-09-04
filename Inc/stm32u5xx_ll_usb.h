@@ -888,7 +888,9 @@ typedef USB_HCTypeDef       USB_DRD_HCTypeDef;
     uint32_t _wRegVal; \
     \
     /*Read the USB->CHEPx into _wRegVal, Reset(DTOGRX/STRX/DTOGTX/STTX) and set the EpAddress*/ \
-    _wRegVal = (USB_DRD_GET_CHEP((USBx), (bEpChNum)) & USB_CHEP_REG_MASK) | (bAddr); \
+    _wRegVal = (USB_DRD_GET_CHEP((USBx), (bEpChNum)) & USB_CHEP_REG_MASK); \
+    _wRegVal &= ~USB_CHEP_ADDR; \
+    _wRegVal |= ((uint32_t)(bAddr) & EP_ADDR_MSK); \
     \
     /*Set _wRegVal in USB->CHEPx and set Transmit/Receive Valid Transfer  (x=bEpChNum)*/ \
     USB_DRD_SET_CHEP((USBx), (bEpChNum), (_wRegVal | USB_CHEP_VTRX | USB_CHEP_VTTX)); \
