@@ -2809,8 +2809,8 @@ single-ended and differential modes. */
                                                   (__TEMPSENSOR_ADC_DATA__),     \
                                                   (__ADC_RESOLUTION__),          \
                                                   LL_ADC_RESOLUTION_14B)         \
-                 * (__VREFANALOG_VOLTAGE__))                                     \
-                / TEMPSENSOR_CAL_VREFANALOG)                                     \
+                 * (int32_t)(__VREFANALOG_VOLTAGE__))                            \
+                / (int32_t)TEMPSENSOR_CAL_VREFANALOG)                            \
       - (int32_t) *TEMPSENSOR_CAL1_ADDR)                                         \
    ) * (int32_t)(TEMPSENSOR_CAL2_TEMP - TEMPSENSOR_CAL1_TEMP)                    \
   ) / (int32_t)((int32_t)*TEMPSENSOR_CAL2_ADDR - (int32_t)*TEMPSENSOR_CAL1_ADDR) \
