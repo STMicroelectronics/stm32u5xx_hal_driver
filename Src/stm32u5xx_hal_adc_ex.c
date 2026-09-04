@@ -1007,6 +1007,7 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeStart_DMA(ADC_HandleTypeDef *hadc, const ui
   ADC_HandleTypeDef tmp_hadc_slave;
   ADC_Common_TypeDef *tmp_adc_common;
   uint32_t LengthInBytes;
+  uint32_t *tmp_LinkRegCBR1;
   DMA_NodeConfTypeDef node_conf;
 
   /* Check the parameters */
@@ -1113,7 +1114,8 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeStart_DMA(ADC_HandleTypeDef *hadc, const ui
             LengthInBytes = Length;
           }
 
-          hadc->DMA_Handle->LinkedListQueue->Head->LinkRegisters[NODE_CBR1_DEFAULT_OFFSET] = (uint32_t)LengthInBytes;
+          tmp_LinkRegCBR1 = &hadc->DMA_Handle->LinkedListQueue->Head->LinkRegisters[NODE_CBR1_DEFAULT_OFFSET];
+          *tmp_LinkRegCBR1 = (*tmp_LinkRegCBR1 & ~DMA_CBR1_BNDT) | (LengthInBytes & DMA_CBR1_BNDT);
           hadc->DMA_Handle->LinkedListQueue->Head->LinkRegisters[NODE_CSAR_DEFAULT_OFFSET] =                  \
               (uint32_t)&tmp_adc_common->CDR;
           hadc->DMA_Handle->LinkedListQueue->Head->LinkRegisters[NODE_CDAR_DEFAULT_OFFSET] = (uint32_t)pData;
@@ -1335,6 +1337,7 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeStart_DMA_Data32(ADC_HandleTypeDef *hadc, c
   ADC_HandleTypeDef tmp_hadc_slave;
   ADC_Common_TypeDef *tmp_adc_common;
   uint32_t LengthInBytes;
+  uint32_t *tmp_LinkRegCBR1;
 
   /* Check the parameters */
   assert_param(IS_ADC_MULTIMODE_MASTER_INSTANCE(hadc->Instance));
@@ -1424,7 +1427,8 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeStart_DMA_Data32(ADC_HandleTypeDef *hadc, c
       {
         if ((hadc->DMA_Handle->LinkedListQueue != NULL) && (hadc->DMA_Handle->LinkedListQueue->Head != NULL))
         {
-          hadc->DMA_Handle->LinkedListQueue->Head->LinkRegisters[NODE_CBR1_DEFAULT_OFFSET] = (LengthInBytes * 2U);
+          tmp_LinkRegCBR1 = &hadc->DMA_Handle->LinkedListQueue->Head->LinkRegisters[NODE_CBR1_DEFAULT_OFFSET];
+          *tmp_LinkRegCBR1 = (*tmp_LinkRegCBR1 & ~DMA_CBR1_BNDT) | ((LengthInBytes * 2U) & DMA_CBR1_BNDT);
           hadc->DMA_Handle->LinkedListQueue->Head->LinkRegisters[NODE_CSAR_DEFAULT_OFFSET] =                     \
               (uint32_t)&tmp_adc_common->CDR2;
           hadc->DMA_Handle->LinkedListQueue->Head->LinkRegisters[NODE_CDAR_DEFAULT_OFFSET] = (uint32_t)pData;

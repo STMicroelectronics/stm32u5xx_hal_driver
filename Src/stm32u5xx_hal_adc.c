@@ -2387,6 +2387,7 @@ HAL_StatusTypeDef HAL_ADC_Start_DMA(ADC_HandleTypeDef *hadc, const uint32_t *pDa
 {
   HAL_StatusTypeDef tmp_hal_status;
   uint32_t LengthInBytes;
+  uint32_t *tmp_LinkRegCBR1;
   DMA_NodeConfTypeDef node_conf;
 #if defined(ADC_MULTIMODE_SUPPORT)
   uint32_t tmp_multimode_config = LL_ADC_GetMultimode(__LL_ADC_COMMON_INSTANCE(hadc->Instance));
@@ -2514,7 +2515,8 @@ HAL_StatusTypeDef HAL_ADC_Start_DMA(ADC_HandleTypeDef *hadc, const uint32_t *pDa
               LengthInBytes = Length;
             }
 
-            hadc->DMA_Handle->LinkedListQueue->Head->LinkRegisters[NODE_CBR1_DEFAULT_OFFSET] = (uint32_t)LengthInBytes;
+            tmp_LinkRegCBR1 = &hadc->DMA_Handle->LinkedListQueue->Head->LinkRegisters[NODE_CBR1_DEFAULT_OFFSET];
+            *tmp_LinkRegCBR1 = (*tmp_LinkRegCBR1 & ~DMA_CBR1_BNDT) | (LengthInBytes & DMA_CBR1_BNDT);
             hadc->DMA_Handle->LinkedListQueue->Head->LinkRegisters[NODE_CSAR_DEFAULT_OFFSET] =                  \
                 (uint32_t)&hadc->Instance->DR;
             hadc->DMA_Handle->LinkedListQueue->Head->LinkRegisters[NODE_CDAR_DEFAULT_OFFSET] = (uint32_t)pData;
